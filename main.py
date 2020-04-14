@@ -3,8 +3,8 @@ from datetime import datetime
 import data
 
 
-def logger(old_function):
-    def result_function(*args, **kwargs):
+def logger (old_function):
+    def result_function (*args, **kwargs):
         today = datetime.now()
         result = old_function(*args, **kwargs)
         result = {'Дата вызова': str(today), 'Имя функции': old_function.__name__, 'Аргументы': [ args, kwargs ],
@@ -15,9 +15,21 @@ def logger(old_function):
 
     return result_function
 
+def paramlogger(param):
+    def logger (old_function):
+        def result_function (*args, **kwargs):
+            today = datetime.now()
+            result = old_function(*args, **kwargs)
+            result = {'Дата вызова': str(today), 'Имя функции': old_function.__name__, 'Аргументы': [ args, kwargs ],
+                      'Возвращаемое значение': result}
+            with open(param, 'w', encoding='utf-8') as f:
+                f.write(json.dumps(result, indent=1, ensure_ascii=False))
+            return result
 
-@logger
-def move_document(directories, path):
+        return result_function
+    return logger
+@paramlogger('log.json')
+def move_document(directories):
     success = False
     doc_number = input("Введите номер документа: ")
     dir_requested = input("На какую полку переместить? ")
@@ -32,5 +44,8 @@ def move_document(directories, path):
         return directories
 
 
+
+
 if __name__ == '__main__':
-    move_document(data.directories, path='log.json')
+    move_document(data.directories)
+
